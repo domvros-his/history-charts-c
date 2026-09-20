@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Χάρτες Ενοτήτων Ιστορίας Γ΄ Γυμνασίου</title>
+  <style>
+    :root {
+      --bg: #f7f3eb;
+      --paper: #efe4c8;
+      --ink: #243037;
+      --muted: #6d716f;
+      --line: #d8d1c7;
+      --sage: #879c8a;
+      --sage-dark: #657a68;
+      --shadow: 0 14px 38px rgba(38, 48, 54, .14);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      padding: 24px;
+    }
+
+    .app {
+      width: min(1480px, 100%);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 40px);
+      line-height: 1.05;
+      font-weight: 700;
+    }
+
+    .title-wrap p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button, select {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 9px;
+      padding: 10px 13px;
+      font: 600 14px/1 Arial, sans-serif;
+      cursor: pointer;
+    }
+
+    button:hover, select:hover {
+      border-color: var(--sage);
+    }
+
+    button:focus-visible, select:focus-visible {
+      outline: 3px solid rgba(135,156,138,.28);
+      outline-offset: 2px;
+    }
+
+    .unit-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 0 0 14px;
+    }
+
+    .unit-btn {
+      min-width: 43px;
+      padding: 9px 11px;
+      background: transparent;
+    }
+
+    .unit-btn.active {
+      background: var(--sage);
+      border-color: var(--sage);
+      color: white;
+    }
+
+    .viewer-shell {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .viewer-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 2px 2px 10px;
+      font-family: Arial, sans-serif;
+    }
+
+    .viewer-heading strong {
+      font-size: 15px;
+    }
+
+    .map-frame {
+      position: relative;
+      overflow: hidden;
+      border-radius: 9px;
+      background: #ece8e1;
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+    }
+
+    .map-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: calc(100vh - 230px);
+      object-fit: contain;
+      background: var(--paper);
+    }
+
+    .map-footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 4px 10px 5px;
+      background: rgba(239, 228, 200, .95);
+      border-top: 1px solid rgba(85, 94, 90, .24);
+      color: #30383b;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      font-size: clamp(8px, .75vw, 10.5px);
+      line-height: 1.25;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .error {
+      padding: 48px 24px;
+      color: #8a3f34;
+      font: 600 15px/1.45 Arial, sans-serif;
+      text-align: center;
+    }
+
+    /* Fullscreen */
+    .map-frame:fullscreen {
+      background: #151515;
+      padding: 0;
+    }
+
+    .map-frame:fullscreen img {
+      width: 100vw;
+      height: 100vh;
+      max-height: none;
+      object-fit: contain;
+    }
+
+    .map-frame:fullscreen .map-footer {
+      font-size: clamp(9px, .9vw, 12.5px);
+      padding: 5px 12px;
+    }
+
+    /* Print: μόνο ο χάρτης με το footer */
+    @media print {
+      body {
+        padding: 0;
+        background: var(--paper);
+      }
+      .topbar, .unit-strip, .viewer-heading {
+        display: none !important;
+      }
+      .viewer-shell {
+        border: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+      .map-frame {
+        border-radius: 0;
+        background: var(--paper);
+      }
+      .map-frame img {
+        max-height: none;
+      }
+      .map-footer {
+        font-size: 8pt;
+        background: rgba(239,228,200,.95);
+      }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 14px; }
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .actions {
+        justify-content: flex-start;
+      }
+      .viewer-shell { padding: 8px; }
+      .viewer-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>Χάρτες Ενοτήτων Ιστορίας Γ΄ Γυμνασίου</h1>
+        <p>Παναγιώτης Δόμβρος · Εκπαιδευτικός - Διευθυντής 1ου Γυμνασίου Πυλαίας</p>
+      </div>
+
+      <div class="actions">
+        <button id="prevBtn" type="button" aria-label="Προηγούμενη ενότητα">← Προηγούμενη</button>
+        <select id="unitSelect" aria-label="Επιλογή ενότητας"></select>
+        <button id="nextBtn" type="button" aria-label="Επόμενη ενότητα">Επόμενη →</button>
+        <button id="fullscreenBtn" type="button">Πλήρης οθόνη</button>
+      </div>
+    </div>
+
+    <nav id="unitStrip" class="unit-strip" aria-label="Ενότητες"></nav>
+
+    <section class="viewer-shell">
+      <div class="viewer-heading">
+        <strong id="unitTitle">Ενότητα 1</strong>
+      </div>
+
+      <div id="mapFrame" class="map-frame">
+        <img id="mapImage" src="1.png" alt="Χάρτης ενότητας 1">
+        <div class="map-footer">Παναγιώτης Δόμβρος · Εκπαιδευτικός-Θεατρολόγος · Επιμορφωτής ΤΠΕ · Διευθυντής 1ου Γυμνασίου Πυλαίας</div>
+      </div>
+
+      <div id="errorBox" class="error" hidden></div>
+    </section>
+
+
+  </main>
+
+  <script>
+    const units = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 17, 18, 19, 20, 22, 27, 28, 29, 30, 31, 32, 34, 38, 39, 44];
+    const unitSelect = document.getElementById('unitSelect');
+    const unitStrip = document.getElementById('unitStrip');
+    const mapImage = document.getElementById('mapImage');
+    const mapFrame = document.getElementById('mapFrame');
+    const unitTitle = document.getElementById('unitTitle');
+    const errorBox = document.getElementById('errorBox');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    let currentIndex = 0;
+
+    function populateControls() {
+      units.forEach((unit, index) => {
+        const option = document.createElement('option');
+        option.value = unit;
+        option.textContent = `Ενότητα ${unit}`;
+        unitSelect.appendChild(option);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'unit-btn';
+        btn.dataset.index = index;
+        btn.textContent = unit;
+        btn.setAttribute('aria-label', `Προβολή ενότητας ${unit}`);
+        btn.addEventListener('click', () => showIndex(index));
+        unitStrip.appendChild(btn);
+      });
+    }
+
+    function showIndex(index, updateHash = true) {
+      currentIndex = (index + units.length) % units.length;
+      const unit = units[currentIndex];
+      const src = `${unit}.png`;
+
+      errorBox.hidden = true;
+      mapFrame.style.display = 'grid';
+
+      mapImage.src = src;
+      mapImage.alt = `Χάρτης ενότητας ${unit}`;
+      unitTitle.textContent = `Ενότητα ${unit}`;
+      unitSelect.value = unit;
+
+      [...unitStrip.children].forEach((btn, i) => {
+        btn.classList.toggle('active', i === currentIndex);
+        btn.setAttribute('aria-current', i === currentIndex ? 'true' : 'false');
+      });
+
+      prevBtn.disabled = false;
+      nextBtn.disabled = false;
+
+      if (updateHash) {
+        history.replaceState(null, '', `#${unit}`);
+      }
+    }
+
+    mapImage.addEventListener('error', () => {
+      const unit = units[currentIndex];
+      mapFrame.style.display = 'none';
+      errorBox.hidden = false;
+      errorBox.innerHTML = `Δεν βρέθηκε το αρχείο <strong>${unit}.png</strong>.<br>Βεβαιωθείτε ότι βρίσκεται στον ίδιο φάκελο με το HTML και ότι το όνομα είναι ακριβώς <strong>${unit}.png</strong>.`;
+    });
+
+    unitSelect.addEventListener('change', () => {
+      const index = units.indexOf(Number(unitSelect.value));
+      if (index >= 0) showIndex(index);
+    });
+
+    prevBtn.addEventListener('click', () => showIndex(currentIndex - 1));
+    nextBtn.addEventListener('click', () => showIndex(currentIndex + 1));
+
+    fullscreenBtn.addEventListener('click', async () => {
+      if (!document.fullscreenElement) {
+        await mapFrame.requestFullscreen?.();
+      } else {
+        await document.exitFullscreen?.();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.target.matches('select, input, textarea')) return;
+      if (event.key === 'ArrowLeft') showIndex(currentIndex - 1);
+      if (event.key === 'ArrowRight') showIndex(currentIndex + 1);
+      if (event.key.toLowerCase() === 'f') fullscreenBtn.click();
+    });
+
+    window.addEventListener('hashchange', () => {
+      const unit = Number(location.hash.replace('#',''));
+      const index = units.indexOf(unit);
+      if (index >= 0 && index !== currentIndex) showIndex(index, false);
+    });
+
+    populateControls();
+
+    const requestedUnit = Number(location.hash.replace('#',''));
+    const requestedIndex = units.indexOf(requestedUnit);
+    showIndex(requestedIndex >= 0 ? requestedIndex : 0, requestedIndex < 0);
+  </script>
+</body>
+</html>
